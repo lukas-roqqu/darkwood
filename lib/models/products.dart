@@ -1,4 +1,5 @@
-import '../models/product.dart';
+import 'product.dart';
+import 'review.dart';
 import '../core/assets.dart';
 
 const List<Product> products = [
@@ -18,6 +19,11 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.ground, price: 12.75),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 38.55),
     ],
+    reviews: [
+      Review(reviewer: 'Sarah M.', rating: 5, body: 'Absolutely beautiful in milk. Rich and smooth with just the right sweetness. My go-to every morning.'),
+      Review(reviewer: 'James T.', rating: 4.5, body: 'That caramel note is real — especially as a flat white. Consistent bag after bag.'),
+      Review(reviewer: 'Priya K.', rating: 5, body: 'Won\'t buy anything else now. The Golden Fork award says it all.'),
+    ],
   ),
   Product(
     id: 'crow-tree',
@@ -34,6 +40,10 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.beans, price: 12.25),
       ProductVariant(size: '250g', grind: GrindType.ground, price: 12.25),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 37.05),
+    ],
+    reviews: [
+      Review(reviewer: 'Oli R.', rating: 5, body: 'Proper dark chocolate hit without being bitter. Best espresso I\'ve had at home.'),
+      Review(reviewer: 'Helen W.', rating: 4, body: 'Love the story behind the Café Femenino sourcing. Tastes great too — dark and bold.'),
     ],
   ),
   Product(
@@ -52,6 +62,10 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.ground, price: 12.50),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 37.50),
     ],
+    reviews: [
+      Review(reviewer: 'Marco D.', rating: 4.5, body: 'Smooth and rich — exactly what I want in an everyday espresso.'),
+      Review(reviewer: 'Chloe B.', rating: 4, body: 'Lovely hazelnut finish. Works brilliantly as a filter too.'),
+    ],
   ),
   Product(
     id: 'black-hill',
@@ -68,6 +82,11 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.beans, price: 12.50),
       ProductVariant(size: '250g', grind: GrindType.ground, price: 12.50),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 37.50),
+    ],
+    reviews: [
+      Review(reviewer: 'Dan F.', rating: 5, body: '3-star Great Taste and it shows. Deep, complex and holds up brilliantly with milk.'),
+      Review(reviewer: 'Anna S.', rating: 5, body: 'Ordered a second bag before I even finished the first. That good.'),
+      Review(reviewer: 'Tom H.', rating: 4.5, body: 'Excellent espresso — sweet caramel notes with a satisfying body.'),
     ],
   ),
   Product(
@@ -87,6 +106,11 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.ground, price: 15.95),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 47.85),
     ],
+    reviews: [
+      Review(reviewer: 'Rachel G.', rating: 5, body: 'The bourbon barrel aging is subtle but unmistakable. Vanilla sweetness with a gorgeous aroma.'),
+      Review(reviewer: 'Luke P.', rating: 5, body: 'Cult favourite for a reason. Worth every penny for a special occasion bag.'),
+      Review(reviewer: 'Nina V.', rating: 4.5, body: 'Complex and interesting. Nothing else quite like it.'),
+    ],
   ),
   Product(
     id: 'good-morning-sunshine',
@@ -103,6 +127,10 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.beans, price: 12.75),
       ProductVariant(size: '250g', grind: GrindType.ground, price: 12.75),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 38.55),
+    ],
+    reviews: [
+      Review(reviewer: 'Fiona L.', rating: 5, body: 'Tastes exactly like its name — French toast with a drizzle of syrup. Brilliant morning coffee.'),
+      Review(reviewer: 'Ben A.', rating: 4, body: 'Balanced and approachable. A great everyday option that doesn\'t get boring.'),
     ],
   ),
   Product(
@@ -122,6 +150,10 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.ground, price: 13.25),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 40.50),
     ],
+    reviews: [
+      Review(reviewer: 'Claire N.', rating: 5, body: 'The best decaf I\'ve ever tasted — you genuinely wouldn\'t know. Rich and full-bodied.'),
+      Review(reviewer: 'Pete O.', rating: 4.5, body: 'Swiss Water method makes a real difference. Clean, no off-flavours. Will reorder.'),
+    ],
   ),
   Product(
     id: 'arboretum',
@@ -139,6 +171,10 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.ground, price: 13.25),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 39.75),
     ],
+    reviews: [
+      Review(reviewer: 'Zoe M.', rating: 5, body: 'Bright and fruity — almost like a juice when brewed as filter. Stunning coffee.'),
+      Review(reviewer: 'Adam C.', rating: 4.5, body: 'The Panama lot is exceptional. Red fruit notes are vivid and the sweetness is natural.'),
+    ],
   ),
   Product(
     id: 'driftwood',
@@ -155,6 +191,10 @@ const List<Product> products = [
       ProductVariant(size: '250g', grind: GrindType.beans, price: 12.75),
       ProductVariant(size: '250g', grind: GrindType.ground, price: 12.75),
       ProductVariant(size: '1kg', grind: GrindType.beans, price: 38.55),
+    ],
+    reviews: [
+      Review(reviewer: 'Sam K.', rating: 5, body: 'My favourite single origin. Caramel and almond in espresso, stone fruit as a filter — versatile and delicious.'),
+      Review(reviewer: 'Jess R.', rating: 4, body: 'The El Ata estate produces something really special. Consistent across bags too.'),
     ],
   ),
 ];

@@ -1,114 +1,113 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:sanga_mobile/core/constants.dart';
+import 'package:sprung/sprung.dart';
+import '../core/colors.dart';
+import '../core/constants.dart';
 
-import '../../core/colors.dart';
-
-class SangaButton extends StatefulWidget {
-  final Function? onPressed;
-  final Widget child;
-  final Widget? icon;
-  final double width;
-  final EdgeInsets padding;
-  final EdgeInsets? margin;
-  final Color backgroundColor;
-  final Color foregroundColor;
-  final double bottomSpacing;
-  final double horizontalSpacing;
-  final double? fontSize;
-  final bool isEnabled;
-  final bool autoLoading;
-  final bool isLoading;
-
-  const SangaButton({
+class DarkwoodButton extends StatefulWidget {
+  const DarkwoodButton({
     super.key,
     required this.child,
     this.onPressed,
     this.icon,
+    this.backgroundColor = DarkwoodColors.black,
+    this.foregroundColor = DarkwoodColors.accent,
+    this.width = double.infinity,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    this.margin,
+    this.bottomSpacing = 12,
     this.horizontalSpacing = 20,
     this.fontSize,
-    this.margin,
-    this.backgroundColor = SangaColors.accent,
-    this.foregroundColor = SangaColors.white,
-    this.width = double.infinity,
-    this.bottomSpacing = 12,
     this.isEnabled = true,
     this.isLoading = false,
     this.autoLoading = false,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
   }) : assert(!(isLoading && autoLoading), 'autoLoading overrides isLoading');
 
+  final Widget child;
+  final Function? onPressed;
+  final Widget? icon;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final double width;
+  final EdgeInsets padding;
+  final EdgeInsets? margin;
+  final double bottomSpacing;
+  final double horizontalSpacing;
+  final double? fontSize;
+  final bool isEnabled;
+  final bool isLoading;
+  final bool autoLoading;
+
   @override
-  State<SangaButton> createState() => _SangaButtonState();
+  State<DarkwoodButton> createState() => _DarkwoodButtonState();
 }
 
-class _SangaButtonState extends State<SangaButton> {
-  RxBool isLoading = false.obs;
+class _DarkwoodButtonState extends State<DarkwoodButton> {
+  bool _autoLoading = false;
+  bool _pressed = false;
+
+  bool get _busy => widget.isLoading || _autoLoading;
+
+  bool get _active => widget.isEnabled && !_busy && widget.onPressed != null;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding:
-          widget.margin ??
-          EdgeInsetsGeometry.only(
-            bottom: widget.bottomSpacing,
-            left: widget.horizontalSpacing,
-            right: widget.horizontalSpacing,
-          ),
-      child: TextButton(
-        onPressed: (!widget.isEnabled || widget.isLoading || widget.onPressed == null)
-            ? null
-            : () async {
-                if (widget.autoLoading) isLoading.value = true;
-                await widget.onPressed!();
-                if (widget.autoLoading) isLoading.value = false;
-              },
-
-        style: TextButton.styleFrom(
-          minimumSize: Size(widget.width, 24),
-          padding: widget.padding,
-          textStyle: TextStyle(
-            fontSize: widget.fontSize ?? 18,
-            fontWeight: FontWeight.w600,
-            fontFamily: SangaConstants.fontFamily,
-            letterSpacing: 0,
-          ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(24)),
-          backgroundColor: widget.backgroundColor,
-          foregroundColor: widget.foregroundColor,
-          disabledBackgroundColor: SangaColors.disabledAccent,
-          disabledForegroundColor: SangaColors.white,
-        ),
-        child: AnimatedSize(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-          clipBehavior: Clip.none,
-          child: AnimatedSwitcher(
-            duration: Duration(milliseconds: 300),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeOut,
-
-            child: Obx(() {
-              return widget.isLoading || isLoading.value
-                  ? SizedBox(
-                      height: 30,
-                      width: 30,
-                      child: CircularProgressIndicator.adaptive(
-                        backgroundColor: widget.isEnabled ? SangaColors.white : SangaColors.black,
-                        strokeWidth: 2,
+          widget.margin ?? EdgeInsets.only(bottom: widget.bottomSpacing, left: widget.horizontalSpacing, right: widget.horizontalSpacing),
+      child: GestureDetector(
+        onTapDown: _active ? (_) => setState(() => _pressed = true) : null,
+        onTapUp: _active ? (_) => setState(() => _pressed = false) : null,
+        onTapCancel: _active ? () => setState(() => _pressed = false) : null,
+        child: AnimatedScale(
+          scale: _pressed ? 0.96 : 1.0,
+          duration: _pressed ? const Duration(milliseconds: 80) : const Duration(milliseconds: 500),
+          curve: _pressed ? Curves.easeIn : Sprung.underDamped,
+          child: TextButton(
+            onPressed: _active
+                ? () async {
+                    if (widget.autoLoading) setState(() => _autoLoading = true);
+                    await widget.onPressed!();
+                    if (widget.autoLoading) setState(() => _autoLoading = false);
+                  }
+                : null,
+            style: TextButton.styleFrom(
+              minimumSize: Size(widget.width, 24),
+              padding: widget.padding,
+              textStyle: TextStyle(
+                fontSize: widget.fontSize ?? 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: DarkwoodConstants.fontFamily,
+                letterSpacing: 0,
+              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              backgroundColor: widget.backgroundColor,
+              foregroundColor: widget.foregroundColor,
+              disabledBackgroundColor: DarkwoodColors.surfaceElevated,
+              disabledForegroundColor: DarkwoodColors.textMuted,
+            ),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Sprung.criticallyDamped,
+              clipBehavior: Clip.none,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Sprung.criticallyDamped,
+                switchOutCurve: Curves.easeIn,
+                child: _busy
+                    ? SizedBox(key: const ValueKey(true), height: 26, width: 26, child: CircularProgressIndicator(color: widget.foregroundColor, strokeWidth: 2))
+                    : Row(
+                        key: const ValueKey(false),
+                        spacing: 8,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (widget.icon != null) widget.icon!,
+                          Flexible(
+                            child: FittedBox(fit: BoxFit.scaleDown, child: widget.child),
+                          ),
+                        ],
                       ),
-                    )
-                  : Row(
-                      spacing: 8,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (widget.icon != null) widget.icon!,
-                        Flexible(
-                          child: FittedBox(fit: BoxFit.scaleDown, child: widget.child),
-                        ),
-                      ],
-                    );
-            }),
+              ),
+            ),
           ),
         ),
       ),

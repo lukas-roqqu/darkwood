@@ -10,7 +10,7 @@ class DarkwoodColors {
   static const Color paleAccent = Color(0xFFFFF8ED);
 
   // Supporting — surfaces
-  static const Color surface = Color(0xFFF5F5F5);
+  static const Color surface = Color(0xFFFDFDFD);
   static const Color surfaceElevated = Color(0xFFEDEDED);
 
   // Supporting — accent shades

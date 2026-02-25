@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:darkwood/core/colors.dart';
 import 'package:flutter/material.dart';
 
 enum SlantEdge { top, bottom, left, right }
@@ -10,20 +11,19 @@ class SlantedContainer extends StatelessWidget {
     this.color,
     this.width,
     this.height,
-    this.padding,
     this.topLeftRadius = 0,
     this.topRightRadius = 0,
-    this.bottomLeftRadius = 0,
-    this.bottomRightRadius = 0,
+    this.bottomLeftRadius = 32,
+    this.bottomRightRadius = 32,
     this.slantAngle = 6,
     this.slantEdge = SlantEdge.bottom,
+    this.coverage = 0.6,
   });
 
   final Widget? child;
   final Color? color;
   final double? width;
   final double? height;
-  final EdgeInsetsGeometry? padding;
 
   /// Per-corner radii
   final double topLeftRadius;
@@ -37,23 +37,37 @@ class SlantedContainer extends StatelessWidget {
   /// Which edge gets the slant
   final SlantEdge slantEdge;
 
+  /// How much of the widget the background fills (0.0–1.0). Default 0.6.
+  /// e.g. SlantEdge.bottom + coverage 0.6 → bg fills top 60% with a
+  /// slanted bottom edge; child sits unclipped over the full space.
+  final double coverage;
+
   @override
   Widget build(BuildContext context) {
-    return ClipPath(
-      clipper: _SlantClipper(
-        topLeftRadius: topLeftRadius,
-        topRightRadius: topRightRadius,
-        bottomLeftRadius: bottomLeftRadius,
-        bottomRightRadius: bottomRightRadius,
-        slantAngle: slantAngle,
-        slantEdge: slantEdge,
-      ),
-      child: Container(
-        width: width,
-        height: height,
-        padding: padding,
-        color: color,
-        child: child,
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // ── Slanted background ──────────────────────────────────
+          Positioned.fill(
+            child: ClipPath(
+              clipper: _SlantClipper(
+                topLeftRadius: topLeftRadius,
+                topRightRadius: topRightRadius,
+                bottomLeftRadius: bottomLeftRadius,
+                bottomRightRadius: bottomRightRadius,
+                slantAngle: slantAngle,
+                slantEdge: slantEdge,
+                coverage: coverage,
+              ),
+              child: ColoredBox(color: color ?? DarkwoodColors.paleAccent),
+            ),
+          ),
+          // ── Child (unclipped, full bounds) ──────────────────────
+          ?child,
+        ],
       ),
     );
   }
@@ -67,6 +81,7 @@ class _SlantClipper extends CustomClipper<Path> {
     required this.bottomRightRadius,
     required this.slantAngle,
     required this.slantEdge,
+    required this.coverage,
   });
 
   final double topLeftRadius;
@@ -75,6 +90,7 @@ class _SlantClipper extends CustomClipper<Path> {
   final double bottomRightRadius;
   final double slantAngle;
   final SlantEdge slantEdge;
+  final double coverage;
 
   @override
   Path getClip(Size size) {
@@ -82,37 +98,41 @@ class _SlantClipper extends CustomClipper<Path> {
     final h = size.height;
     final hOff = w * math.tan(slantAngle * math.pi / 180);
     final vOff = h * math.tan(slantAngle * math.pi / 180);
+    final c = coverage.clamp(0.0, 1.0);
 
     Offset tl, tr, br, bl;
 
     switch (slantEdge) {
-      case SlantEdge.top:
-        tl = Offset(0, hOff);
-        tr = Offset(w, 0);
-        br = Offset(w, h);
-        bl = Offset(0, h);
+      // bg fills TOP c% — slanted bottom edge
       case SlantEdge.bottom:
         tl = Offset(0, 0);
         tr = Offset(w, 0);
-        br = Offset(w, h - hOff);
-        bl = Offset(0, h);
-      case SlantEdge.left:
-        tl = Offset(0, 0);
-        tr = Offset(w, 0);
+        br = Offset(w, c * h - hOff);
+        bl = Offset(0, c * h);
+      // bg fills BOTTOM c% — slanted top edge
+      case SlantEdge.top:
+        tl = Offset(0, (1 - c) * h + hOff);
+        tr = Offset(w, (1 - c) * h);
         br = Offset(w, h);
-        bl = Offset(0, h - vOff);
+        bl = Offset(0, h);
+      // bg fills LEFT c% — slanted right edge
       case SlantEdge.right:
         tl = Offset(0, 0);
-        tr = Offset(w, vOff);
-        br = Offset(w, h);
+        tr = Offset(c * w, 0);
+        br = Offset(c * w - vOff, h);
         bl = Offset(0, h);
+      // bg fills RIGHT c% — slanted left edge
+      case SlantEdge.left:
+        tl = Offset((1 - c) * w + vOff, 0);
+        tr = Offset(w, 0);
+        br = Offset(w, h);
+        bl = Offset((1 - c) * w, h);
     }
 
     return _buildPath(tl, tr, br, bl);
   }
 
   Path _buildPath(Offset tl, Offset tr, Offset br, Offset bl) {
-    // Returns a point `distance` along the edge from `from` toward `to`
     Offset along(Offset from, Offset to, double distance) {
       final d = to - from;
       final len = d.distance;
@@ -120,37 +140,27 @@ class _SlantClipper extends CustomClipper<Path> {
       return from + d / len * distance;
     }
 
-    // Anchor points on each edge, offset from each corner by its radius
-    final tlOnTop  = along(tl, tr, topLeftRadius);
+    final tlOnTop = along(tl, tr, topLeftRadius);
     final tlOnLeft = along(tl, bl, topLeftRadius);
-
-    final trOnTop   = along(tr, tl, topRightRadius);
+    final trOnTop = along(tr, tl, topRightRadius);
     final trOnRight = along(tr, br, topRightRadius);
-
-    final brOnRight  = along(br, tr, bottomRightRadius);
+    final brOnRight = along(br, tr, bottomRightRadius);
     final brOnBottom = along(br, bl, bottomRightRadius);
-
     final blOnBottom = along(bl, br, bottomLeftRadius);
-    final blOnLeft   = along(bl, tl, bottomLeftRadius);
+    final blOnLeft = along(bl, tl, bottomLeftRadius);
 
     final path = Path();
-
-    // Start on top edge just after TL corner
     path.moveTo(tlOnTop.dx, tlOnTop.dy);
 
-    // ── Top edge ──────────────────────────────────────────────────
     path.lineTo(trOnTop.dx, trOnTop.dy);
     _corner(path, tr, trOnRight, topRightRadius);
 
-    // ── Right edge ────────────────────────────────────────────────
     path.lineTo(brOnRight.dx, brOnRight.dy);
     _corner(path, br, brOnBottom, bottomRightRadius);
 
-    // ── Bottom edge ───────────────────────────────────────────────
     path.lineTo(blOnBottom.dx, blOnBottom.dy);
     _corner(path, bl, blOnLeft, bottomLeftRadius);
 
-    // ── Left edge ─────────────────────────────────────────────────
     path.lineTo(tlOnLeft.dx, tlOnLeft.dy);
     _corner(path, tl, tlOnTop, topLeftRadius);
 
@@ -158,8 +168,6 @@ class _SlantClipper extends CustomClipper<Path> {
     return path;
   }
 
-  /// Draws corner arc: bezier through [corner] ending at [to].
-  /// If radius is 0 we just lineTo the corner — no curve needed.
   void _corner(Path path, Offset corner, Offset to, double radius) {
     if (radius > 0) {
       path.quadraticBezierTo(corner.dx, corner.dy, to.dx, to.dy);
@@ -175,5 +183,6 @@ class _SlantClipper extends CustomClipper<Path> {
       old.bottomLeftRadius != bottomLeftRadius ||
       old.bottomRightRadius != bottomRightRadius ||
       old.slantAngle != slantAngle ||
-      old.slantEdge != slantEdge;
+      old.slantEdge != slantEdge ||
+      old.coverage != coverage;
 }

@@ -16,7 +16,7 @@ class DarkwoodApp extends StatelessWidget {
       title: DarkwoodConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: DarkwoodTheme.light,
-      home:LoginScreen(),
+      home: LoginScreen(),
     );
   }
 }
