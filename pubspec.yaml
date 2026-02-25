@@ -12,6 +12,9 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   pay: ^3.3.0
+  flutter_animate: ^4.5.2
+  sprung: ^3.0.1
+  get: ^4.7.3
 
 dev_dependencies:
   flutter_test:
@@ -23,6 +26,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/products/
 
   fonts:
     - family: Causten
