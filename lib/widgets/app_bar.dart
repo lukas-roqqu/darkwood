@@ -4,10 +4,10 @@ import '../core/colors.dart';
 import '../core/constants.dart';
 
 class DarkwoodAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const DarkwoodAppBar({super.key, this.title, this.leading, this.actions, this.bottom});
+  const DarkwoodAppBar({super.key, this.title, this.color, this.actions, this.bottom});
 
   final Widget? title;
-  final Widget? leading;
+  final Color? color;
   final List<Widget>? actions;
   final PreferredSizeWidget? bottom;
 
@@ -17,8 +17,8 @@ class DarkwoodAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        boxShadow: [BoxShadow(color: DarkwoodColors.paleAccent, blurRadius: 16, offset: Offset(0, -8), spreadRadius: 8)],
+      decoration: BoxDecoration(
+        boxShadow: [BoxShadow(color: color ?? DarkwoodColors.paleAccent, blurRadius: 16, offset: Offset(0, -8), spreadRadius: 8)],
       ),
       child: AppBar(
         backgroundColor: Colors.transparent,
@@ -34,7 +34,6 @@ class DarkwoodAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: DarkwoodColors.black,
         ),
         title: title,
-        leading: leading,
         actions: actions,
         bottom: bottom,
       ),

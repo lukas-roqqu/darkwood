@@ -6,8 +6,8 @@ import 'package:darkwood/core/extensions.dart';
 import 'package:darkwood/models/product.dart';
 import 'package:darkwood/models/review.dart';
 import 'package:darkwood/services/pay_service.dart';
+import 'package:darkwood/widgets/app_bar.dart';
 import 'package:darkwood/widgets/inkwell.dart';
-import 'package:darkwood/widgets/slanted_container.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pay/pay.dart';
@@ -35,6 +35,15 @@ class _DescriptionScreenState extends State<DescriptionScreen> {
     super.initState();
     payService = Get.find<PayService>();
     _selectedVariant = product.defaultVariant;
+    _diagnosePayAvailability();
+  }
+
+  void _diagnosePayAvailability() {
+    if (!Platform.isIOS) return;
+    Pay({PayProvider.apple_pay: payService.applePayConfig})
+        .userCanPay(PayProvider.apple_pay)
+        .then((can) => debugPrint('[Pay] canMakePayments → $can'))
+        .catchError((e) => debugPrint('[Pay] canMakePayments error → $e'));
   }
 
   void _selectSize(String size) {
@@ -44,10 +53,10 @@ class _DescriptionScreenState extends State<DescriptionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-
     return Scaffold(
       backgroundColor: DarkwoodColors.background,
+      extendBodyBehindAppBar: true,
+      appBar: DarkwoodAppBar(color: DarkwoodColors.background),
       bottomNavigationBar: _BottomBar(
         paymentItems: payService.buildPaymentItems([
           {
@@ -59,106 +68,57 @@ class _DescriptionScreenState extends State<DescriptionScreen> {
         ]),
         onSuccess: context.pop,
       ),
-      body: SlantedContainer(
-        coverage: 0.5,
-        child: Column(
-          children: [
-            // ── Image area ───────────────────────────────────────
-            SafeArea(
-              bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: AlignmentGeometry.center,
+                child: Image.asset(product.imagePath, height: 300, fit: BoxFit.contain),
+              ),
+              Text(product.tagline, style: context.bodyMedium),
+              SizedBox(height: 4),
+              Text(product.name, style: context.headlineLarge),
+              SizedBox(height: 12),
+
+              if (product.reviewCount > 0) ...[_StarRating(rating: product.avgRating, count: product.reviewCount), SizedBox(height: 20)],
+
+              _SizeSelector(sizes: _sizes, selected: _selectedVariant.size, onSelect: _selectSize),
+              SizedBox(height: 16),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: DarkwoodInkwell(
-                        onTap: context.pop,
-                        borderRadius: DarkwoodConstants.radiusFull,
-                        padding: const EdgeInsets.all(8),
-                        child: const Icon(Icons.arrow_back_rounded, color: DarkwoodColors.black, size: 22),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
-                    child: Image.asset(product.imagePath, height: 220, fit: BoxFit.contain),
+                  Text('£${_selectedVariant.price.toStringAsFixed(2)}', style: context.displayMedium),
+                  _QuantitySelector(
+                    quantity: _quantity,
+                    onDecrement: () {
+                      if (_quantity > 1) {
+                        setState(() => _quantity--);
+                      }
+                    },
+                    onIncrement: () => setState(() => _quantity++),
                   ),
                 ],
               ),
-            ),
 
-            // ── Content card ─────────────────────────────────────
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: DarkwoodColors.background,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(DarkwoodConstants.radiusXL)),
-                ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Tagline + name
-                      Text(product.tagline, style: tt.bodyMedium),
-                      const SizedBox(height: 4),
-                      Text(product.name, style: tt.headlineLarge),
-                      const SizedBox(height: 12),
+              Divider(height: 32),
 
-                      // Star rating
-                      if (product.reviewCount > 0) ...[
-                        _StarRating(rating: product.avgRating, count: product.reviewCount),
-                        const SizedBox(height: 20),
-                      ],
+              Text('Description', style: context.titleLarge),
+              SizedBox(height: 8),
+              Text(product.description, style: context.bodyMedium),
 
-                      // Size selector
-                      _SizeSelector(sizes: _sizes, selected: _selectedVariant.size, onSelect: _selectSize),
-                      const SizedBox(height: 24),
-
-                      // Price + quantity
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text('£${_selectedVariant.price.toStringAsFixed(2)}', style: tt.displayMedium),
-                          _QuantitySelector(
-                            quantity: _quantity,
-                            onDecrement: () {
-                              if (_quantity > 1) {
-                                setState(() => _quantity--);
-                              }
-                            },
-                            onIncrement: () => setState(() => _quantity++),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      const Divider(),
-                      const SizedBox(height: 16),
-
-                      // Description
-                      Text('Description', style: tt.titleLarge),
-                      const SizedBox(height: 8),
-                      Text(product.description, style: tt.bodyMedium),
-
-                      // Reviews
-                      if (product.reviews.isNotEmpty) ...[
-                        const SizedBox(height: 24),
-                        const Divider(),
-                        const SizedBox(height: 16),
-                        Text('Reviews', style: tt.titleLarge),
-                        const SizedBox(height: 12),
-                        ...product.reviews.map((r) => _ReviewTile(review: r)),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+              if (product.reviews.isNotEmpty) ...[
+                Divider(height: 48),
+                Text('Reviews', style: context.titleLarge),
+                const SizedBox(height: 12),
+                ...product.reviews.map((r) => _ReviewTile(review: r)),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -177,8 +137,8 @@ class _SizeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: DarkwoodColors.surface, borderRadius: BorderRadius.circular(DarkwoodConstants.radiusFull)),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(color: DarkwoodColors.paleAccent, borderRadius: BorderRadius.circular(DarkwoodConstants.radiusFull)),
       child: Row(
         children: sizes.map((size) {
           final isSelected = size == selected;
@@ -190,7 +150,7 @@ class _SizeSelector extends StatelessWidget {
                 curve: Curves.easeInOut,
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 decoration: BoxDecoration(
-                  color: isSelected ? DarkwoodColors.black : Colors.transparent,
+                  color: isSelected ? DarkwoodColors.accent : DarkwoodColors.accent.withValues(alpha: 0),
                   borderRadius: BorderRadius.circular(DarkwoodConstants.radiusFull),
                 ),
                 child: Text(
@@ -198,9 +158,9 @@ class _SizeSelector extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: DarkwoodConstants.fontFamily,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isSelected ? DarkwoodColors.accent : DarkwoodColors.textSecondary,
+                    fontSize: 16,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? DarkwoodColors.black : DarkwoodColors.textSecondary,
                   ),
                 ),
               ),
@@ -211,8 +171,6 @@ class _SizeSelector extends StatelessWidget {
     );
   }
 }
-
-// ── Star rating ──────────────────────────────────────────────────────────────
 
 class _StarRating extends StatelessWidget {
   const _StarRating({required this.rating, required this.count});
@@ -241,8 +199,6 @@ class _StarRating extends StatelessWidget {
   }
 }
 
-// ── Quantity selector ────────────────────────────────────────────────────────
-
 class _QuantitySelector extends StatelessWidget {
   const _QuantitySelector({required this.quantity, required this.onDecrement, required this.onIncrement});
 
@@ -253,32 +209,33 @@ class _QuantitySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    return Row(
-      children: [
-        DarkwoodInkwell(
-          onTap: onDecrement,
-          color: DarkwoodColors.surface,
-          borderRadius: DarkwoodConstants.radiusFull,
-          padding: const EdgeInsets.all(10),
-          child: const Icon(Icons.remove_rounded, size: 18, color: DarkwoodColors.black),
-        ),
-        SizedBox(
-          width: 40,
-          child: Text('$quantity', style: tt.titleLarge, textAlign: TextAlign.center),
-        ),
-        DarkwoodInkwell(
-          onTap: onIncrement,
-          color: DarkwoodColors.surface,
-          borderRadius: DarkwoodConstants.radiusFull,
-          padding: const EdgeInsets.all(10),
-          child: const Icon(Icons.add_rounded, size: 18, color: DarkwoodColors.black),
-        ),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(180),
+        border: Border.all(color: Colors.grey, width: 0.3),
+      ),
+      child: Row(
+        children: [
+          DarkwoodInkwell(
+            onTap: onDecrement,
+            color: DarkwoodColors.surface,
+            borderRadius: DarkwoodConstants.radiusFull,
+            padding: const EdgeInsets.all(16),
+            child: const Icon(Icons.remove_rounded, size: 18, color: DarkwoodColors.black),
+          ),
+          Text('$quantity', style: tt.titleLarge, textAlign: TextAlign.center),
+          DarkwoodInkwell(
+            onTap: onIncrement,
+            color: DarkwoodColors.surface,
+            borderRadius: DarkwoodConstants.radiusFull,
+            padding: const EdgeInsets.all(16),
+            child: const Icon(Icons.add_rounded, size: 18, color: DarkwoodColors.black),
+          ),
+        ],
+      ),
     );
   }
 }
-
-// ── Review tile ──────────────────────────────────────────────────────────────
 
 class _ReviewTile extends StatelessWidget {
   const _ReviewTile({required this.review});
@@ -292,7 +249,7 @@ class _ReviewTile extends StatelessWidget {
     final hasHalf = (review.rating - full) >= 0.25;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -304,14 +261,12 @@ class _ReviewTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text(review.body, style: tt.bodySmall),
+          Text(review.body, style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w300)),
         ],
       ),
     );
   }
 }
-
-// ── Bottom bar ───────────────────────────────────────────────────────────────
 
 class _BottomBar extends StatelessWidget {
   const _BottomBar({required this.paymentItems, required this.onSuccess});
@@ -335,6 +290,7 @@ class _BottomBar extends StatelessWidget {
                 paymentConfiguration: payService.applePayConfig,
                 paymentItems: paymentItems,
                 height: 54,
+                cornerRadius: 54 / 2,
                 style: ApplePayButtonStyle.black,
                 type: ApplePayButtonType.buy,
                 onPaymentResult: (result) => payService.onPaymentResult(result, onSuccess: onSuccess),

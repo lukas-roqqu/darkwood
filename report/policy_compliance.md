@@ -99,3 +99,7 @@ Both Apple and Google maintain a hard architectural separation between their nat
 | Google | Using Google Pay for in-game tokens violates Play Billing policy and Google Pay AUP | **High — app suspension and account strikes** |
 
 This does not mean the product cannot be built. It means the payment route must go through **Apple In-App Purchase (StoreKit)** on iOS and **Google Play Billing** on Android, not through the `pay` Flutter package. The remainder of the report documents what a `pay`-based implementation would require, which remains relevant if the intended use case shifts to physical goods or services in the future.
+
+---
+
+*Sources: [App Store Review Guidelines §3.1.1](https://developer.apple.com/app-store/review/guidelines/) · [App Store Review Guidelines §3.1.3(e)](https://developer.apple.com/app-store/review/guidelines/) · [Apple Pay Acceptable Use Guidelines](https://developer.apple.com/apple-pay/acceptable-use-guidelines-for-websites/) · [Apple Developer Program License Agreement](https://developer.apple.com/support/terms/apple-developer-program-license-agreement/) · [Google Pay & Wallet APIs Acceptable Use Policy](https://payments.developers.google.com/terms/aup) · [Google Play Payments Policy](https://support.google.com/googleplay/android-developer/answer/10281818) · [Google Play Enforcement Process](https://support.google.com/googleplay/android-developer/answer/9899234)*

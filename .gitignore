@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Whitewood (NestJS backend)
+whitewood/node_modules
+whitewood/dist
+whitewood/.env
