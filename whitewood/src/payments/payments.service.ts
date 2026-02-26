@@ -9,7 +9,7 @@ export class PaymentsService {
 
   constructor(private readonly config: ConfigService) {
     this.stripe = new Stripe(this.config.getOrThrow<string>('STRIPE_SECRET_KEY'), {
-      apiVersion: '2025-01-27.acacia',
+      apiVersion: '2026-01-28.clover',
     });
   }
 

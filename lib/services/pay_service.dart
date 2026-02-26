@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect.dart';
 import 'package:pay/pay.dart';
 
 enum PaymentStatus { idle, processing, success, failed }
 
 enum PaymentProvider { applePay, googlePay }
 
-// Update this to your server URL (e.g. https://api.yourdomain.com)
-const String _backendUrl = 'http://localhost:3000';
+const String _backendUrl = 'http://192.168.1.171:3000';
 
 class PayService extends GetxService {
   final _http = GetConnect();
+
   // ── State ──────────────────────────────────────────────────────
   final status = PaymentStatus.idle.obs;
   final lastResult = Rxn<Map<String, dynamic>>();
@@ -86,13 +85,12 @@ class PayService extends GetxService {
 
   // ── Getters ────────────────────────────────────────────────────
 
-  PaymentConfiguration get applePayConfig =>
-      _appleConfig ??= PaymentConfiguration.fromJsonString(_applePay);
+  PaymentConfiguration get applePayConfig => _appleConfig ??= PaymentConfiguration.fromJsonString(_applePay);
 
-  PaymentConfiguration get googlePayConfig =>
-      _googleConfig ??= PaymentConfiguration.fromJsonString(_googlePay);
+  PaymentConfiguration get googlePayConfig => _googleConfig ??= PaymentConfiguration.fromJsonString(_googlePay);
 
   bool get isIdle => status.value == PaymentStatus.idle;
+
   bool get isProcessing => status.value == PaymentStatus.processing;
 
   // ── Payment items helper ───────────────────────────────────────
@@ -111,10 +109,7 @@ class PayService extends GetxService {
 
   // ── Result handling ────────────────────────────────────────────
 
-  void onPaymentResult(
-    Map<String, dynamic> result, {
-    VoidCallback? onSuccess,
-  }) {
+  void onPaymentResult(Map<String, dynamic> result, {VoidCallback? onSuccess}) {
     status.value = PaymentStatus.processing;
     lastResult.value = result;
     lastError.value = null;
@@ -124,10 +119,7 @@ class PayService extends GetxService {
     _submitToBackend(result, onSuccess: onSuccess);
   }
 
-  Future<void> _submitToBackend(
-    Map<String, dynamic> result, {
-    VoidCallback? onSuccess,
-  }) async {
+  Future<void> _submitToBackend(Map<String, dynamic> result, {VoidCallback? onSuccess}) async {
     try {
       // Extract the token — empty string on simulator, encrypted string on real device
       final raw = result['token'] as String? ?? '';
@@ -140,15 +132,12 @@ class PayService extends GetxService {
         return;
       }
 
-      final response = await _http.post(
-        '$_backendUrl/payments/process',
-        {
-          'token': token,
-          'provider': result.containsKey('paymentData') ? 'apple_pay' : 'google_pay',
-          'amount': (lastResult.value?['amount'] as num?)?.toInt() ?? 0,
-          'description': result['description'] as String? ?? 'Darkwood Coffee order',
-        },
-      );
+      final response = await _http.post('$_backendUrl/payments/process', {
+        'token': token,
+        'provider': result.containsKey('paymentData') ? 'apple_pay' : 'google_pay',
+        'amount': (lastResult.value?['amount'] as num?)?.toInt() ?? 0,
+        'description': result['description'] as String? ?? 'Darkwood Coffee order',
+      });
 
       if (response.statusCode == 200) {
         debugPrint('[PayService] Payment succeeded — token: $token | response: ${response.body}');
@@ -167,10 +156,7 @@ class PayService extends GetxService {
     }
   }
 
-  void onPaymentError(
-    Object? error, {
-    VoidCallback? onError,
-  }) {
+  void onPaymentError(Object? error, {VoidCallback? onError}) {
     if (error is PlatformException && error.code == 'paymentCanceled') {
       status.value = PaymentStatus.idle;
       return;
