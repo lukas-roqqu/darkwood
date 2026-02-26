@@ -58,9 +58,17 @@
 - [ ] Google Pay brand guidelines followed in the UI (button size, placement, do-not-alter rules) — violations can block approval
 - [ ] Production approval typically takes 1–5 business days
 
+### Android Build Requirements
+- [ ] `minSdkVersion` set to **23** or higher in `android/app/build.gradle` (Google Pay SDK recommendation)
+- [ ] `compileSdkVersion` set to **34** or higher
+
+### Distribution
+- [ ] App will be distributed through the **Google Play Store** — Google Pay in production does not work in sideloaded APKs
+
 ### Testing
 - [ ] Test account with a saved card on the Android device or emulator
 - [ ] `TEST` environment confirmed active during development (no real charges)
+- [ ] Note: in `TEST` mode, `userCanPay` always returns `true` and the token is always `"examplePaymentMethodToken"` — do not rely on these for production gating logic
 - [ ] Cancel and error flows tested
 
 ---
@@ -127,12 +135,15 @@
 ### Implementation
 - [ ] `PaymentConfiguration` built from a valid JSON string for each provider
 - [ ] `PaymentItem` list built correctly — total item must be the last entry and labelled `total`
+- [ ] `PaymentItem.amount` uses a period as the decimal separator regardless of device locale (e.g. `"12.99"` not `"12,99"`)
 - [ ] `ApplePayButton` used on iOS; `GooglePayButton` used on Android — platform policy requires using the official branded buttons, not custom button widgets
 - [ ] `onPaymentResult` sends the token to the backend — token is never charged client-side
-- [ ] `onError` handled gracefully — user shown a meaningful message
+- [ ] `onError` handles `paymentCanceled` silently (user dismissed the sheet — not an error); all other codes shown to the user
+- [ ] `childOnError` widget set if you want to show a fallback when the user cannot pay (e.g. no cards in Wallet)
 - [ ] Loading/processing state shown while the backend responds
 - [ ] Success state navigates away or confirms the order
 - [ ] Payment items rebuilt on every state change (quantity, variant selection) so the sheet always shows the correct amount
+- [ ] Payment configuration JSON is fetched from the backend rather than hardcoded in the app (recommended — allows updates without an app release)
 
 ### Platform Configuration
 - [ ] iOS: Merchant ID in entitlements matches the one in the `PaymentConfiguration` JSON

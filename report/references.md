@@ -12,7 +12,12 @@ All sources cited across the reports in this project.
 | Apple Pay Acceptable Use Guidelines | https://developer.apple.com/apple-pay/acceptable-use-guidelines-for-websites/ |
 | Apple Developer Program License Agreement | https://developer.apple.com/support/terms/apple-developer-program-license-agreement/ |
 | Apple Pay Developer Documentation | https://developer.apple.com/apple-pay/ |
+| Apple Pay Implementation Guide | https://developer.apple.com/apple-pay/implementation/ |
 | Apple Developer Portal — Merchant IDs | https://developer.apple.com/account/resources/identifiers/list/merchant |
+| Apple Pay Sandbox Testing | https://developer.apple.com/apple-pay/sandbox-testing/ |
+| PassKit API Reference | https://developer.apple.com/documentation/passkit/apple_pay/ |
+| PKPaymentNetwork — Supported Networks | https://developer.apple.com/documentation/passkit/pkpaymentnetwork |
+| Apple Pay Button Guidelines (HIG) | https://developer.apple.com/design/human-interface-guidelines/apple-pay/overview/buttons-and-marks/ |
 
 ---
 
@@ -25,6 +30,11 @@ All sources cited across the reports in this project.
 | Google Play Enforcement Process | https://support.google.com/googleplay/android-developer/answer/9899234 |
 | Google Pay & Wallet Console | https://pay.google.com/business/console |
 | Google Pay API Documentation | https://developers.google.com/pay/api |
+| Google Pay API Android Overview | https://developers.google.com/pay/api/android/overview |
+| Google Pay Android Setup Guide | https://developers.google.com/pay/api/android/guides/setup |
+| Google Pay Request Objects Reference | https://developers.google.com/pay/api/android/reference/request-objects |
+| Google Pay Response Objects Reference | https://developers.google.com/pay/api/android/reference/response-objects |
+| Google Pay Integration Checklist | https://developers.google.com/pay/api/android/guides/test-and-deploy/integration-checklist |
 | Google Pay Brand Guidelines | https://developers.google.com/pay/api/web/guides/brand-guidelines |
 
 ---
@@ -51,7 +61,13 @@ All sources cited across the reports in this project.
 
 | Reference | URL |
 |---|---|
-| `pay` Flutter Package | https://pub.dev/packages/pay |
+| `pay` Flutter Package (pub.dev) | https://pub.dev/packages/pay |
+| `pay` GitHub Repository | https://github.com/google-pay/flutter-plugin |
+| `pay` CHANGELOG | https://raw.githubusercontent.com/google-pay/flutter-plugin/main/pay/CHANGELOG.md |
+| `pay_android` CHANGELOG | https://raw.githubusercontent.com/google-pay/flutter-plugin/main/pay_android/CHANGELOG.md |
+| `pay` Package pubspec | https://raw.githubusercontent.com/google-pay/flutter-plugin/main/pay/pubspec.yaml |
+| Apple Pay Configuration Example | https://raw.githubusercontent.com/google-pay/flutter-plugin/main/pay/example/assets/default_apple_pay_config.json |
+| Google Pay Configuration Example | https://raw.githubusercontent.com/google-pay/flutter-plugin/main/pay/example/assets/default_google_pay_config.json |
 
 ---
 
