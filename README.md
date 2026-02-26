@@ -12,6 +12,16 @@ This project also serves as a live integration sandbox for the [`pay`](https://p
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ca29fa87-3d2e-43fc-b290-4189568c069b" width="250" />
+  <img src="https://github.com/user-attachments/assets/4733bbe5-fb86-4384-b1f7-8c90eba60a35" width="250" />
+  <img src="https://github.com/user-attachments/assets/b8c46f56-eb7c-4122-b0f0-e588d83c840c" width="250" />
+</p>
+
+---
+
 ## Tech Stack
 
 | Layer | Choice |
