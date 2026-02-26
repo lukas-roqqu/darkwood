@@ -7,7 +7,7 @@ enum PaymentStatus { idle, processing, success, failed }
 
 enum PaymentProvider { applePay, googlePay }
 
-const String _backendUrl = 'http://192.168.1.171:3000';
+const String _backendUrl = 'http://localhost:3000';
 
 class PayService extends GetxService {
   final _http = GetConnect();
@@ -18,7 +18,6 @@ class PayService extends GetxService {
   final lastError = RxnString();
 
   // ── Configs ────────────────────────────────────────────────────
-  // Loaded once at init and cached
   PaymentConfiguration? _appleConfig;
   PaymentConfiguration? _googleConfig;
 
@@ -75,7 +74,6 @@ class PayService extends GetxService {
   }''';
 
   // ── Init ───────────────────────────────────────────────────────
-
   @override
   void onInit() {
     super.onInit();
@@ -84,7 +82,6 @@ class PayService extends GetxService {
   }
 
   // ── Getters ────────────────────────────────────────────────────
-
   PaymentConfiguration get applePayConfig => _appleConfig ??= PaymentConfiguration.fromJsonString(_applePay);
 
   PaymentConfiguration get googlePayConfig => _googleConfig ??= PaymentConfiguration.fromJsonString(_googlePay);
@@ -94,7 +91,6 @@ class PayService extends GetxService {
   bool get isProcessing => status.value == PaymentStatus.processing;
 
   // ── Payment items helper ───────────────────────────────────────
-
   List<PaymentItem> buildPaymentItems(List<Map<String, dynamic>> rawItems) {
     return rawItems.map((item) {
       final isTotal = item['type'] == 'total';
@@ -108,7 +104,6 @@ class PayService extends GetxService {
   }
 
   // ── Result handling ────────────────────────────────────────────
-
   void onPaymentResult(Map<String, dynamic> result, {VoidCallback? onSuccess}) {
     status.value = PaymentStatus.processing;
     lastResult.value = result;
@@ -121,7 +116,6 @@ class PayService extends GetxService {
 
   Future<void> _submitToBackend(Map<String, dynamic> result, {VoidCallback? onSuccess}) async {
     try {
-      // Extract the token — empty string on simulator, encrypted string on real device
       final raw = result['token'] as String? ?? '';
       final token = raw.isNotEmpty ? raw : null;
 
